@@ -1,6 +1,6 @@
 #include "ggjson/parser.h"
 
-int ggjson_action_parse(ggjson_parser_actions* parser_actions, ggjson_input* input, void* arg)
+int ggjson_event_parse(ggjson_parser_events* parser_events, ggjson_input* input, void* arg)
 {
   return 0;
 }

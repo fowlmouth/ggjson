@@ -5,12 +5,12 @@
 
 typedef struct ggjson_parser_state ggjson_parser_state;
 
-enum ggjson_parser_actions_result
+enum ggjson_parser_events_result
 {
-  ggjpar_good, ggjpar_error
+  ggjper_good, ggjper_error
 };
 
-typedef struct ggjson_parser_actions
+typedef struct ggjson_parser_events
 {
   int (*begin_object)(ggjson_parser_state*, const char* key);
   int (*accept_object)(ggjson_parser_state*, const char* key);
@@ -25,9 +25,9 @@ typedef struct ggjson_parser_actions
   int (*accept_null)(ggjson_parser_state*, const char* key);
 
   int (*on_error)(ggjson_parser_state*, const char* key, const char* message);
-} ggjson_parser_actions;
+} ggjson_parser_events;
 
-int ggjson_action_parse(ggjson_parser_actions* parser_actions, ggjson_input* input, void* arg);
+int ggjson_action_parse(ggjson_parser_events* parser_events, ggjson_input* input, void* arg);
 
 
 

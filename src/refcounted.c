@@ -24,9 +24,11 @@ void ggjson_hold_refcounted(ggjson_refcounted_object* obj)
 
 void ggjson_free_refcounted(ggjson_refcounted_object* obj)
 {
-  if(! --obj->refcount && obj->free)
+  if(! --obj->refcount)
   {
-    obj->free(obj);
+    if(obj->free)
+      obj->free(obj);
+    free(obj);
   }
 }
 

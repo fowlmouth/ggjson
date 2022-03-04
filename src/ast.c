@@ -26,7 +26,7 @@ typedef struct ggjson_string
 
 ggjson_string* ggjson_string_new(int size, const char* data)
 {
-  ggjson_string* str = (ggjson_string*)ggjson_alloc_refcounted(sizeof(ggjson_string) + size + 1, free);
+  ggjson_string* str = (ggjson_string*)ggjson_alloc_refcounted(sizeof(ggjson_string) + size + 1, NULL);
   str->base.type = ggjot_string;
   str->size = size;
   if(data)
