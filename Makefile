@@ -30,11 +30,14 @@ deps/libtest:
 src/%.o: src/%.c deps
 	cc -c -o $@ $< $(CFLAGS)
 
-static: $(LIB_OBJS)
+$(STATICLIB_NAME): $(LIB_OBJS)
 	ar rcs $(STATICLIB_NAME) $(LIB_OBJS) deps/nanbox_t/libnanbox.a
 
-shared: $(LIB_OBJS)
+$(SHAREDLIB_NAME): $(LIB_OBJS)
 	cc -shared -o $(SHAREDLIB_NAME) $(LIB_OBJS) deps/nanbox_t/libnanbox.a
+
+static: $(STATICLIB_NAME)
+shared: $(SHAREDLIB_NAME)
 
 test/%.o: test/%.c deps
 	cc -c -o $@ $< $(TEST_CFLAGS)
