@@ -11,7 +11,7 @@ SHAREDLIB_NAME := libggjson.so
 
 STD := -std=c17
 CFLAGS := $(STD) -g -Iinclude/ -Ideps/nanbox_t/include
-TEST_CFLAGS := $(CFLAGS) -Ideps/libtest
+TEST_CFLAGS := $(CFLAGS) -Ideps/libtest/include
 
 PREFIX := /usr/local
 
