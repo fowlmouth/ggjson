@@ -27,7 +27,7 @@ void ggjson_input_init(struct ggjson_input* input, struct ggjson_input_vtable* v
 int ggjson_input_read_character(struct ggjson_input* input);
 void ggjson_input_set_position(struct ggjson_input* input, ggjson_input_position_t position);
 ggjson_input_position_t ggjson_input_get_position(struct ggjson_input* input);
-
+int ggjson_input_is_eof(ggjson_input*);
 
 typedef struct ggjson_string_input
 {
