@@ -27,7 +27,8 @@ typedef struct ggjson_parser_events
   int (*on_error)(ggjson_parser_state*, const char* key, const char* message);
 } ggjson_parser_events;
 
-int ggjson_action_parse(ggjson_parser_events* parser_events, ggjson_input* input, void* arg);
+void ggjson_parser_events_init(ggjson_parser_events* parser_events);
+int ggjson_parse(ggjson_parser_events* parser_events, ggjson_input* input, void* arg);
 
 
 
