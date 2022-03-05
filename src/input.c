@@ -54,7 +54,7 @@ ggjson_input_position_t _ggjson_string_input_get_position(struct ggjson_input* i
   return ((ggjson_string_input*)input)->pos;
 }
 
-ggjson_input_vtable string_input_vt = {
+static ggjson_input_vtable string_input_vt = {
   .read_character = _ggjson_string_input_read_character,
   .set_position = _ggjson_string_input_set_position,
   .get_position = _ggjson_string_input_get_position,
