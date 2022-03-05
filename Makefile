@@ -42,7 +42,7 @@ shared: $(SHAREDLIB_NAME)
 test/%.o: test/%.c deps
 	cc -c -o $@ $< $(TEST_CFLAGS)
 
-tests: $(TEST_OBJS) static
+tests: $(TEST_OBJS) $(STATICLIB_NAME)
 	cc -o $@ $(TEST_OBJS) $(TEST_CFLAGS) $(STATICLIB_NAME) deps/libtest/libtest.c
 
 clean:
