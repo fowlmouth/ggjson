@@ -4,7 +4,8 @@
 
 #include <string.h>
 
-TEST(lexer, tokens) {
+TEST(lexer, tokens)
+{
   const char* string = "[ 10, 20, 30 ]";
   const int token_count = 7;
 
@@ -25,7 +26,6 @@ TEST(lexer, tokens) {
     ASSERT_MSGF(
       ggjson_lexer_read_token(&lexer, &token, error_buffer_size, error_buffer),
       "expected a token %d/%d", i, token_count);
-    printf("token type= '%d' pos= '%lld' \n", token.type, token.begin.position);
   }
 
   ASSERT_MSG(
@@ -36,4 +36,31 @@ TEST(lexer, tokens) {
   PASS();
 }
 
+TEST(lexer, integers)
+{
+  const char* string = "98765 -43210";
+
+  const int error_buffer_size = 256;
+  char error_buffer[error_buffer_size];
+
+  ggjson_string_input string_input;
+  ggjson_string_input_init(&string_input, string, strlen(string));
+ 
+  ggjson_lexer lexer;
+  ggjson_lexer_init(&lexer, (ggjson_input*)&string_input);
+
+  ggjson_lexer_token token __attribute__((cleanup(ggjson_lexer_token_deinit)));
+  ggjson_lexer_token_init(&token, 256);
+
+  ASSERT(ggjson_lexer_read_token(&lexer, &token, error_buffer_size, error_buffer));
+  ASSERT_EQ(token.int_value, 98765);
+
+  ASSERT(ggjson_lexer_read_token(&lexer, &token, error_buffer_size, error_buffer));
+  ASSERT_EQ(token.int_value, -43210);
+
+  ASSERT_EQ(ggjlrtr_eof, ggjson_lexer_read_token(&lexer, &token, error_buffer_size, error_buffer));
+  ASSERT_EQ(token.type, ggjltt_eof);
+
+  PASS();
+}
 

@@ -85,6 +85,8 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
     return ggjlrtr_eof;
   }
 
+  int is_negative = 0;
+
 #define TOKEN_WRITE(character) \
   *str++ = character;
 
@@ -103,6 +105,16 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
 
   switch(lexer->current_character)
   {
+  case '-':
+    is_negative = 1;
+    TOKEN_WRITE('-');
+    ggjson_lexer_next_character(lexer);
+    if(!isdigit(ggjson_lexer_current_character(lexer)))
+    {
+      ERROR("expected digits after -");
+    }
+    // fall-through intentional
+
   case '0': case '1': case '2': case '3': case '4':
   case '5': case '6': case '7': case '8': case '9':
     token->type = ggjltt_integer;
@@ -115,6 +127,10 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
       // TODO check for str overflow before writing chars to it
     }
     // TODO check for ., e, etc here for floats
+    if(is_negative)
+    {
+      token->int_value = - token->int_value;
+    }
     break;
 
   case '[':
@@ -123,6 +139,18 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
 
   case ']':
     CHAR_TOK(ggjltt_close_bracket, ']');
+    break;
+
+  case '{':
+    CHAR_TOK(ggjltt_open_brace, '{');
+    break;
+
+  case '}':
+    CHAR_TOK(ggjltt_close_brace, '}');
+    break;
+
+  case ':':
+    CHAR_TOK(ggjltt_colon, ':');
     break;
 
   case ',':
