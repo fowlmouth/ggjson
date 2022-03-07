@@ -34,7 +34,7 @@ typedef struct ggjson_lexer
 {
   ggjson_input* input;
   long line, col;
-  int current_character;
+  ggjson_char_t current_character;
 } ggjson_lexer;
 
 void ggjson_lexer_init(ggjson_lexer*, ggjson_input*);

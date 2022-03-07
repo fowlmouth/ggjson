@@ -5,7 +5,7 @@ void ggjson_input_init(struct ggjson_input* input, struct ggjson_input_vtable* v
   input->vt = vtable;
 }
 
-int ggjson_input_read_character(struct ggjson_input* input)
+ggjson_char_t ggjson_input_read_character(struct ggjson_input* input)
 {
   return input->vt->read_character(input);
 }
