@@ -1,5 +1,6 @@
 #include "ggjson/lexer.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -78,8 +79,27 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
   char* str = token->buffer, *str_end = str + token->buffer_capacity;
   *str = 0;
 
+  if(ggjson_input_is_eof(lexer->input))
+  {
+    token->type = ggjltt_eof;
+    return ggjlrtr_eof;
+  }
+
 #define TOKEN_WRITE(character) \
   *str++ = character;
+
+#define CHAR_TOK(typ, character) \
+  do{ \
+    token->type = typ; \
+    TOKEN_WRITE(character); \
+    ggjson_lexer_next_character(lexer); \
+  }while(0)
+
+#define ERROR(fmt, ...) \
+  do{ \
+    snprintf(error_buffer, error_buffer_size, (fmt), ##__VA_ARGS__); \
+    return ggjlrtr_error; \
+  }while(0);
 
   switch(lexer->current_character)
   {
@@ -90,12 +110,36 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
     while(isdigit(ggjson_lexer_current_character(lexer)))
     {
       token->int_value = (token->int_value * 10) + (ggjson_lexer_current_character(lexer) - '0');
-      *str++ = (char)ggjson_lexer_current_character(lexer);
-
+      TOKEN_WRITE((char)ggjson_lexer_current_character(lexer));
+      ggjson_lexer_next_character(lexer);
+      // TODO check for str overflow before writing chars to it
     }
     // TODO check for ., e, etc here for floats
-    *str++ = 0;
+    break;
+
+  case '[':
+    CHAR_TOK(ggjltt_open_bracket, '[');
+    break;
+
+  case ']':
+    CHAR_TOK(ggjltt_close_bracket, ']');
+    break;
+
+  case ',':
+    CHAR_TOK(ggjltt_comma, ',');
+    break;
+
+  default:
+    ERROR("unrecognized token");
+
   }
 
-  return 0;
+  TOKEN_WRITE(0);
+
+  token->end = ggjson_lexer_get_position(lexer);
+  return ggjlrtr_token;
+
+#undef ERROR
+#undef CHAR_TOK
+#undef TOKEN_WRITE
 }

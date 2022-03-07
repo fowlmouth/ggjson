@@ -22,9 +22,10 @@ TEST(lexer, tokens) {
 
   for(int i = 0; i < token_count; ++i)
   {
-    ASSERT_MSG(
+    ASSERT_MSGF(
       ggjson_lexer_read_token(&lexer, &token, error_buffer_size, error_buffer),
-      "expected a token");
+      "expected a token %d/%d", i, token_count);
+    printf("token type= '%d' pos= '%lld' \n", token.type, token.begin.position);
   }
 
   ASSERT_MSG(

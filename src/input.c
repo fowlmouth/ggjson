@@ -34,7 +34,7 @@ int _ggjson_string_input_is_eof(struct ggjson_input* input)
   return string_input->pos >= string_input->len;
 }
 
-int _ggjson_string_input_read_character(struct ggjson_input* input)
+ggjson_char_t _ggjson_string_input_read_character(struct ggjson_input* input)
 {
   if(_ggjson_string_input_is_eof(input))
   {

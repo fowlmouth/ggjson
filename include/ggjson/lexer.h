@@ -28,7 +28,10 @@ typedef struct ggjson_lexer_token
   char* buffer;
 } ggjson_lexer_token;
 
-
+typedef enum ggjson_lexer_read_token_result
+{
+  ggjlrtr_error, ggjlrtr_eof, ggjlrtr_token
+} ggjson_lexer_read_token_result;
 
 typedef struct ggjson_lexer
 {
