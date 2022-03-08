@@ -15,6 +15,13 @@ TEST_CFLAGS := $(CFLAGS) -Ideps/libtest/include
 
 PREFIX := /usr/local
 
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
+	CFLAGS += -DDEBUG -g -O0
+else
+	CFLAGS += -DNDEBUG
+endif
+
 all: static shared
 .PHONY: all clean cleandeps install
 
