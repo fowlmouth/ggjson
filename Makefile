@@ -13,6 +13,8 @@ STD := -std=c17
 CFLAGS := $(STD) -g -Iinclude/ -Ideps/nanbox_t/include
 TEST_CFLAGS := $(CFLAGS) -Ideps/libtest/include
 
+LDFLAGS := deps/nanbox_t/libnanbox.a
+
 PREFIX := /usr/local
 
 DEBUG ?= 0
@@ -38,10 +40,10 @@ src/%.o: src/%.c deps
 	cc -c -o $@ $< $(CFLAGS)
 
 $(STATICLIB_NAME): $(LIB_OBJS)
-	ar rcs $(STATICLIB_NAME) $(LIB_OBJS) deps/nanbox_t/libnanbox.a
+	ar rcs $(STATICLIB_NAME) $(LIB_OBJS)
 
 $(SHAREDLIB_NAME): $(LIB_OBJS)
-	cc -shared -o $(SHAREDLIB_NAME) $(LIB_OBJS) deps/nanbox_t/libnanbox.a
+	cc -shared -o $(SHAREDLIB_NAME) $(LIB_OBJS) $(LDFLAGS)
 
 static: $(STATICLIB_NAME)
 shared: $(SHAREDLIB_NAME)
@@ -50,7 +52,7 @@ test/%.o: test/%.c deps
 	cc -c -o $@ $< $(TEST_CFLAGS)
 
 tests: $(TEST_OBJS) $(STATICLIB_NAME)
-	cc -o $@ $(TEST_OBJS) $(TEST_CFLAGS) $(STATICLIB_NAME) deps/libtest/libtest.c
+	cc -o $@ $(TEST_OBJS) $(TEST_CFLAGS) deps/libtest/libtest.c $(STATICLIB_NAME) $(LDFLAGS)
 
 clean:
 	rm -rf $(OBJS) $(BIN_NAME) $(SHAREDLIB_NAME) $(STATICLIB_NAME)

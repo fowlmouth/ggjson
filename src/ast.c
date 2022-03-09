@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-
+#include <assert.h>
 
 typedef struct ggjson_ast_base
 {
@@ -46,7 +46,7 @@ struct ggjson_ast_object_slot
   ggjson_object value;
 };
 
-typedef struct ggjson_ast_object
+struct ggjson_ast_object
 {
   ggjson_ast_base base;
 
@@ -56,8 +56,64 @@ typedef struct ggjson_ast_object
   int key_buffer_size;
   char* key_buffer_begin, *key_buffer_end;
 
-} ggjson_ast_object;
+};
 
+
+void ggjson_ast_object_free(void* ptr)
+{
+  ggjson_ast_object* obj = ptr;
+  free(obj->slots);
+  free(obj->key_buffer_begin);
+}
+
+ggjson_ast_object* ggjson_ast_object_new(int size, struct ggjson_ast_object_field* members)
+{
+  // int capacity = next_power
+  int capacity = size ? next_power_of_two(size + 1) : 4;
+  ggjson_ast_object* obj = (ggjson_ast_object*)ggjson_alloc_refcounted(sizeof(ggjson_ast_object), ggjson_ast_object_free);
+  obj->base.type = ggjot_string;
+  obj->size = size;
+  obj->capacity_mask = capacity - 1;
+  if(size && members)
+  {
+    int member_count = 0,
+      strbuf_size = 0;
+    for(int i = 0; i < size; ++i)
+    {
+      struct ggjson_ast_object_field* field = members + i;
+      if(!field->key)
+      {
+        break;
+      }
+      ++member_count;
+      strbuf_size += strlen(field->key) + 1;
+    }
+    int key_buffer_size = next_power_of_two(strbuf_size);
+    char* key_buffer = calloc(1, key_buffer_size);
+    // TODO handle this better
+    assert(key_buffer);
+
+    obj->key_buffer_size = key_buffer_size;
+    obj->key_buffer_begin = obj->key_buffer_end = key_buffer;
+
+
+  }
+  // if(data)
+  // {
+  //   memcpy(str->data, data, size);
+  // }
+  // return str;
+  return obj;
+}
+
+int ggjson_ast_object_size(ggjson_ast_object* obj)
+{
+  return obj ? obj->size : -1;
+}
+int ggjson_ast_object_capacity(ggjson_ast_object* obj)
+{
+  return obj ? obj->capacity_mask + 1 : -1;
+}
 
 
 
