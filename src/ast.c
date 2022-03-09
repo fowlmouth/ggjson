@@ -26,7 +26,7 @@ typedef struct ggjson_string
 
 ggjson_string* ggjson_string_new(int size, const char* data)
 {
-  ggjson_string* str = (ggjson_string*)ggjson_alloc_refcounted(sizeof(ggjson_string) + size + 1, NULL);
+  ggjson_string* str = (ggjson_string*)ggjson_refcounted_alloc(sizeof(ggjson_string) + size + 1, NULL);
   str->base.type = ggjot_string;
   str->size = size;
   if(data)
@@ -70,7 +70,7 @@ ggjson_ast_object* ggjson_ast_object_new(int size, struct ggjson_ast_object_fiel
 {
   // int capacity = next_power
   int capacity = size ? next_power_of_two(size + 1) : 4;
-  ggjson_ast_object* obj = (ggjson_ast_object*)ggjson_alloc_refcounted(sizeof(ggjson_ast_object), ggjson_ast_object_free);
+  ggjson_ast_object* obj = (ggjson_ast_object*)ggjson_refcounted_alloc(sizeof(ggjson_ast_object), ggjson_ast_object_free);
   obj->base.type = ggjot_string;
   obj->size = size;
   obj->capacity_mask = capacity - 1;
