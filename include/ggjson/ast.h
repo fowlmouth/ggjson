@@ -29,7 +29,7 @@ struct ggjson_ast_object_field
   ggjson_object value;
 };
 
-ggjson_ast_object* ggjson_ast_object_new(int size, struct ggjson_ast_object_field* members);
+ggjson_ast_object* ggjson_ast_object_new(int size, struct ggjson_ast_object_field* members, int key_buffer_min_size);
 int ggjson_ast_object_size(ggjson_ast_object*);
 int ggjson_ast_object_capacity(ggjson_ast_object*);
 

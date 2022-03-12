@@ -13,8 +13,7 @@ TEST(ast, objects)
   fields[1].value = GGJSON_INTEGER(-99);
   fields[2].key   = "baz";
   fields[2].value = GGJSON_INTEGER(101);
-  ggjson_ast_object* obj = ggjson_ast_object_new(3, fields);
-
+  ggjson_ast_object* obj = ggjson_ast_object_new(3, fields, 0);
 
   ASSERT_EQ(3, ggjson_ast_object_size(obj));
   ASSERT_EQ(4, ggjson_ast_object_capacity(obj));
