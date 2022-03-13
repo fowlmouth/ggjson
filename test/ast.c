@@ -16,7 +16,7 @@ TEST(ast, objects)
   ggjson_ast_object* obj = ggjson_ast_object_new(3, fields, 0);
 
   ASSERT_EQ(3, ggjson_ast_object_size(obj));
-  ASSERT_EQ(4, ggjson_ast_object_capacity(obj));
+  ASSERT_EQ(8, ggjson_ast_object_capacity(obj));
 
   const char* string = "0123456789abcdef";
   ASSERT_EQ(16, strlen(string));
