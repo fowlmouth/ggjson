@@ -37,7 +37,7 @@ deps/libtest:
 	git clone --depth 1 https://github.com/fowlmouth/libtest.git deps/libtest
 
 src/%.o: src/%.c deps
-	cc -c -o $@ $< $(CFLAGS)
+	cc -c -o $@ $< $(CFLAGS) -fPIC
 
 $(STATICLIB_NAME): $(LIB_OBJS)
 	ar rcs $(STATICLIB_NAME) $(LIB_OBJS)
