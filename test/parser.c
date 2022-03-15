@@ -32,8 +32,6 @@ TEST(parser, integer)
 
   ggjson_parse(&events, (ggjson_input*)&string_input, &value);
   ASSERT_EQ(value, 42);
-
-  PASS();
 }
 
 

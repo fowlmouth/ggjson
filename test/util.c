@@ -12,6 +12,4 @@ TEST(util, next_power_of_two)
   ASSERT_EQ(8, next_power_of_two(6));
   ASSERT_EQ(8, next_power_of_two(7));
   ASSERT_EQ(8, next_power_of_two(8));
-
-  PASS();
 }

@@ -56,8 +56,6 @@ TEST(lexer, tokens)
     ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer),
     "expected a token (EOF)");
   ASSERT_EQ(token->type, ggjltt_eof);
-
-  PASS();
 }
 
 TEST(lexer, integers)
@@ -86,8 +84,6 @@ TEST(lexer, integers)
 
   ASSERT_EQ(ggjlrtr_eof, ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
   ASSERT_EQ(token->type, ggjltt_eof);
-
-  PASS();
 }
 
 TEST(lexer, punctuation)
@@ -114,7 +110,4 @@ TEST(lexer, punctuation)
 
   ASSERT(ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
   ASSERT_EQ(token->type, ggjltt_eof);
-
-  PASS();
-
 }
