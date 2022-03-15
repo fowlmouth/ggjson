@@ -23,8 +23,6 @@ TEST(input, string_input) {
 
   ASSERT_EQ(1, ggjson_input_is_eof(input));
   ASSERT_EQ(GGJSON_EOF, ggjson_input_read_character(input));
-
-  PASS();
 }
 
 

@@ -17,6 +17,4 @@ TEST(refcounted, free)
 
   ASSERT_LT(ggjson_refcounted_free(obj), 1);
   ASSERT_EQ(0, test_free_refcounted_counter);
-
-  PASS();
 }
