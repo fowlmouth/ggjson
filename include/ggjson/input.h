@@ -2,13 +2,15 @@
 #define GGJSON_INPUT_HEADER_INCLUDED
 
 #include <stddef.h>
-
-#define GGJSON_EOF ((int)-1)
+#include <wchar.h>
+#include <stdlib.h>
 
 struct ggjson_input;
 
 typedef long long ggjson_input_position_t;
-typedef unsigned int ggjson_char_t;
+typedef wchar_t ggjson_char_t;
+
+#define GGJSON_EOF ((ggjson_char_t)WEOF)
 
 typedef struct ggjson_input_vtable
 {

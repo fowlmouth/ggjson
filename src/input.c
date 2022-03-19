@@ -41,7 +41,18 @@ ggjson_char_t _ggjson_string_input_read_character(struct ggjson_input* input)
     return GGJSON_EOF;
   }
   ggjson_string_input* string_input = (ggjson_string_input*)input;
-  return string_input->string[ string_input->pos++ ];
+  wchar_t wchar;
+  int char_bytes = mbtowc(
+    &wchar,
+    string_input->string + string_input->pos,
+    string_input->len - string_input->pos);
+  if(char_bytes <= 0)
+  {
+    // TODO report error?
+    return GGJSON_EOF;
+  }
+  string_input->pos += char_bytes;
+  return (ggjson_char_t)wchar;
 }
 
 void _ggjson_string_input_set_position(struct ggjson_input* input, ggjson_input_position_t position)

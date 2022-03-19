@@ -5,7 +5,7 @@
 
 int main(int argc, const char** argv)
 {
-
+  char* locale = setlocale(LC_ALL, "");
   const char* json_input_str = "{\"x\":10,\"y\":100.0}";
 
   ggjson_string_input string_input;
