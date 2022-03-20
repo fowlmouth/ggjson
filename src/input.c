@@ -42,10 +42,13 @@ ggjson_char_t _ggjson_string_input_read_character(struct ggjson_input* input)
   }
   ggjson_string_input* string_input = (ggjson_string_input*)input;
   wchar_t wchar;
-  int char_bytes = mbtowc(
+  mbstate_t mbstate;
+  memset(&mbstate, 0, sizeof mbstate);
+  int char_bytes = mbrtowc(
     &wchar,
     string_input->string + string_input->pos,
-    string_input->len - string_input->pos);
+    string_input->len - string_input->pos,
+    &mbstate);
   if(char_bytes <= 0)
   {
     // TODO report error?

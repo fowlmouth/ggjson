@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <wchar.h>
 #include <stdlib.h>
+#include <string.h>
+
 
 struct ggjson_input;
 

@@ -1,9 +1,5 @@
 #include "ggjson/lexer.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 
 ggjson_char_t ggjson_lexer_next_character(ggjson_lexer* lexer);
 
@@ -19,6 +15,7 @@ void ggjson_lexer_init(ggjson_lexer* lexer, ggjson_input* input)
 void ggjson_lexer_token_init(ggjson_lexer_token* token, int buffer_capacity)
 {
   memset(token, 0, sizeof(struct ggjson_lexer_token));
+  token->buffer_used = 0;
   token->buffer_capacity = buffer_capacity;
   token->buffer = calloc(1, buffer_capacity);
 }
@@ -69,6 +66,39 @@ int ggjson_lexer_skip_whitespace(ggjson_lexer* lexer)
   return count;
 }
 
+void ggjson_lexer_token_grow_buffer(ggjson_lexer_token* token, int by_atleast)
+{
+  int min_capacity = token->buffer_used + by_atleast;
+  int new_capacity = token->buffer_capacity * 2;
+  while(new_capacity < min_capacity)
+  {
+    new_capacity *= 2;
+  }
+  token->buffer = realloc(token->buffer, new_capacity);
+  token->buffer_capacity = new_capacity;
+}
+
+
+int ggjson_lexer_token_write_char(ggjson_lexer_token* token, ggjson_char_t character)
+{
+  char mb[MB_CUR_MAX];
+  mbstate_t mbs;
+  memset(&mbs, 0, sizeof mbs);
+  size_t char_count = wcrtomb(mb, (wchar_t)character, &mbs);
+  if(char_count < 0)
+  {
+    return 0;
+  }
+  if(token->buffer_capacity - token->buffer_used < char_count)
+  {
+    ggjson_lexer_token_grow_buffer(token, char_count);
+  }
+  memcpy(token->buffer + token->buffer_used, mb, char_count);
+  ++token->character_count;
+  token->buffer_used += char_count;
+  token->buffer[ token->buffer_used ] = 0;
+  return 1;
+}
 
 int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int error_buffer_size, char* error_buffer)
 {
@@ -76,8 +106,8 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
 
   token->type = ggjltt_eof;
   token->begin = token->end = ggjson_lexer_get_position(lexer);
-  char* str = token->buffer, *str_end = str + token->buffer_capacity;
-  *str = 0;
+  // char* str = token->buffer, *str_end = str + token->buffer_capacity;
+  // *str = 0;
 
   if(ggjson_input_is_eof(lexer->input))
   {
@@ -88,7 +118,7 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
   int is_negative = 0;
 
 #define TOKEN_WRITE(character) \
-  *str++ = character;
+  ggjson_lexer_token_write_char(token, character)
 
 #define CHAR_TOK(typ, character) \
   do{ \
@@ -157,8 +187,48 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
     CHAR_TOK(ggjltt_comma, ',');
     break;
 
+  case '"':
+    token->type = ggjltt_string;
+    ggjson_lexer_next_character(lexer);
+    while(1)
+    {
+      ggjson_char_t this_char = ggjson_lexer_current_character(lexer);
+      switch(this_char)
+      {
+      case '\\':
+        this_char = ggjson_lexer_next_character(lexer);
+        switch(this_char)
+        {
+        case 'n':
+          ggjson_lexer_token_write_char(token, '\n');
+          break;
+        case '\\':
+          ggjson_lexer_token_write_char(token, '\\');
+          break;
+        default:
+          ERROR("invalid escape char '%lc'", (wchar_t)this_char);
+          break;
+        }
+        break;
+
+      case '"':
+        ggjson_lexer_next_character(lexer);
+        goto string_closed;
+      case GGJSON_EOF:
+        ERROR("unterminated string");
+
+      default:
+        ggjson_lexer_token_write_char(token, this_char);
+        ggjson_lexer_next_character(lexer);
+        break;
+      }
+    }
+  string_closed:
+    break;
+
   default:
     ERROR("unrecognized token");
+    break;
 
   }
 
