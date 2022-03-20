@@ -7,5 +7,6 @@ WORKDIR /build
 ADD Makefile ./
 ADD include/ include/
 ADD src/ src/
+ADD test/ test/
 
-RUN make -j4
+RUN make tests shared -j4
