@@ -1,0 +1,23 @@
+#!/bin/sh
+
+## post-receive hook for git which runs ./ci/build and ./ci/branch/{branch}
+
+WORKDIR="$PWD/.workdir"
+mkdir -p "$WORKDIR"
+
+export GIT_WORK_TREE="$WORKDIR"
+
+while read oldrev newrev ref
+do
+  branch="$(git rev-parse --symbolic --abbrev-ref "$ref")"
+  printf "oldrev='%s' newrev='%s' ref='%s' branch='%s'\n" "$oldrev" "$newrev" "$ref" "$branch"
+
+  git worktree add -qf "$WORKDIR" "$newrev" \
+  || git checkout -f "$newrev"
+
+  echo "git rev-parse HEAD: $(git rev-parse HEAD)"
+
+  [ -x "$WORKDIR/ci/build" ] && TAG="$newrev" sh -c "cd $WORKDIR && ./ci/build"
+  [ -d "$WORKDIR/ci/branch" -a -x "$WORKDIR/ci/branch/$branch" ] && TAG="$newrev" sh -c "cd $WORKDIR && ./ci/branch/$branch"
+done
+

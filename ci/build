@@ -1,0 +1,36 @@
+#!/bin/sh
+
+## run a multi platform build with docker
+
+set -ex
+
+[ -z "$REPO" ] && REPO="fowlmouth/ggjson"
+[ -z "$TAG" ] && TAG="$(git rev-parse HEAD)"
+[ -z "$PLATFORMS" ] && PLATFORMS="arm64 amd64"
+
+make clean
+
+[ ! -z "$SAVE_DOCKER_CACHE" -a -f docker-cache.tar ] && docker load -qi docker-cache.tar
+
+for PLATFORM in $PLATFORMS; do
+  THIS_IMAGE="$REPO:$TAG-$PLATFORM"
+  PLATFORM_LATEST="$REPO:latest-$PLATFORM"
+  LINUX_PLATFORM="linux/$PLATFORM"
+
+  docker pull alpine:3.15 --platform "$LINUX_PLATFORM"
+  docker build . \
+    --cache-from "$PLATFORM_LATEST" \
+    --platform "$LINUX_PLATFORM" \
+    --tag "$THIS_IMAGE" \
+    --tag "$PLATFORM_LATEST"
+  docker run "$THIS_IMAGE" ./tests
+  docker push "$THIS_IMAGE"
+
+  MANIFEST_IMAGES="$THIS_IMAGE $MANIFEST_IMAGES"
+  DOCKER_SAVE_IMAGES="$PLATFORM_LATEST $DOCKER_SAVE_IMAGES"
+done
+
+docker manifest create "$REPO:$TAG" $MANIFEST_IMAGES
+docker manifest push "$REPO:$TAG"
+
+[ ! -z "$SAVE_DOCKER_CACHE" ] && docker save -o docker-cache.tar $DOCKER_SAVE_IMAGES
