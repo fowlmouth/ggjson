@@ -15,7 +15,7 @@ typedef enum ggjson_lexer_token_type
   ggjltt_open_brace, ggjltt_close_brace,
   ggjltt_open_bracket, ggjltt_close_bracket,
   ggjltt_null, ggjltt_true, ggjltt_false,
-  ggjltt_integer, ggjltt_real, ggjltt_string
+  ggjltt_integer, ggjltt_double, ggjltt_string
 } ggjson_lexer_token_type;
 
 typedef struct ggjson_lexer_token_position
@@ -28,7 +28,11 @@ typedef struct ggjson_lexer_token
 {
   ggjson_lexer_token_type type;
   ggjson_lexer_token_position begin, end;
-  long long int_value;
+  union
+  {
+    long long int_value;
+    double double_value;
+  };
   long character_count;
   int buffer_used, buffer_capacity;
   char* buffer;

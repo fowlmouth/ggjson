@@ -56,6 +56,10 @@ int ggjson_parse_terminal(ggjson_parser* parser, void* arg)
     CHECK_CALL(events->accept_integer, parser_state, arg, ggjson_parser_current_key(parser), parser->next_token.int_value);
     break;
 
+  case ggjltt_double:
+    CHECK_CALL(events->accept_double, parser_state, arg, ggjson_parser_current_key(parser), parser->next_token.double_value);
+    break;
+
   case ggjltt_string:
     CHECK_CALL(events->accept_string, parser_state, arg, ggjson_parser_current_key(parser), parser->next_token.buffer_used, parser->next_token.buffer);
     break;

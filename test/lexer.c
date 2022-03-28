@@ -103,6 +103,35 @@ TEST(lexer, integers)
   ASSERT_EQ(token->type, ggjltt_eof);
 }
 
+TEST(lexer, doubles)
+{
+  const char* string = "987.65 43210e5";
+
+  const int error_buffer_size = 256;
+  char error_buffer[error_buffer_size];
+
+  struct lexer_test_state* state = data;
+  ggjson_string_input string_input;
+  ggjson_string_input_init(&string_input, string, strlen(string));
+
+  ggjson_lexer lexer;
+  ggjson_lexer_init(&lexer, (ggjson_input*)&string_input);
+
+  ggjson_lexer_token *token = &state->token;
+
+  ASSERT(ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
+  ASSERT_EQ(token->type, ggjltt_double);
+  ASSERT_EQ(token->double_value, 987.65);
+
+  ASSERT(ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
+  ASSERT_EQ(token->type, ggjltt_double);
+  ASSERT_EQ(token->double_value, 43210e5);
+
+  ASSERT_EQ(ggjlrtr_eof, ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
+  ASSERT_EQ(token->type, ggjltt_eof);
+}
+
+
 TEST(lexer, punctuation)
 {
   const char* string = "[]{},:";

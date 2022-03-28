@@ -57,6 +57,34 @@ TEST(parser, string)
   ggjson_parse(&events, (ggjson_input*)&string_input, &value);
   ASSERT(value);
   ASSERT_EQ(0, strcmp(value, "A🍄B🌶C🍍"));
+}
+
+int test_accept_double(ggjson_parser_state* unused, void* arg, const char* key, double value)
+{
+  double* output = arg;
+  *output = value;
+  return 1;
+}
+
+TEST(parser, double)
+{
+  const char* string = "123.45 -99e2";
+
+  ggjson_string_input string_input;
+  ggjson_string_input_init(&string_input, string, strlen(string));
+
+  ggjson_parser_events events;
+  ggjson_parser_events_init(&events);
+  events.accept_double = test_accept_double;
+
+  double value = 0;
+
+  ggjson_parse(&events, (ggjson_input*)&string_input, &value);
+  ASSERT_EQ(value, 123.45);
+
+  ggjson_parse(&events, (ggjson_input*)&string_input, &value);
+  ASSERT_EQ(value, -99e2);
 
 }
+
 

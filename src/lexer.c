@@ -106,8 +106,7 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
 
   token->type = ggjltt_eof;
   token->begin = token->end = ggjson_lexer_get_position(lexer);
-  // char* str = token->buffer, *str_end = str + token->buffer_capacity;
-  // *str = 0;
+  token->buffer_used = 0;
 
   if(ggjson_input_is_eof(lexer->input))
   {
@@ -152,7 +151,7 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
     while(isdigit(ggjson_lexer_current_character(lexer)))
     {
       token->int_value = (token->int_value * 10) + (ggjson_lexer_current_character(lexer) - '0');
-      TOKEN_WRITE((char)ggjson_lexer_current_character(lexer));
+      TOKEN_WRITE(ggjson_lexer_current_character(lexer));
       ggjson_lexer_next_character(lexer);
       // TODO check for str overflow before writing chars to it
     }
@@ -160,6 +159,45 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
     if(is_negative)
     {
       token->int_value = - token->int_value;
+    }
+    if(ggjson_lexer_current_character(lexer) == '.')
+    {
+      token->type = ggjltt_double;
+      TOKEN_WRITE(ggjson_lexer_current_character(lexer));
+      ggjson_lexer_next_character(lexer);
+      while(isdigit(ggjson_lexer_current_character(lexer)))
+      {
+        TOKEN_WRITE(ggjson_lexer_current_character(lexer));
+        ggjson_lexer_next_character(lexer);
+      }
+    }
+    if(ggjson_lexer_current_character(lexer) == 'e' || ggjson_lexer_current_character(lexer) == 'E')
+    {
+      token->type = ggjltt_double;
+      TOKEN_WRITE(ggjson_lexer_current_character(lexer));
+      ggjson_lexer_next_character(lexer);
+      while(isdigit(ggjson_lexer_current_character(lexer)))
+      {
+        TOKEN_WRITE(ggjson_lexer_current_character(lexer));
+        ggjson_lexer_next_character(lexer);
+      }
+    }
+    if(token->type == ggjltt_double)
+    {
+      // we recorded the entire token in the char buffer, use strtod to convert to double
+      char* token_end = NULL;
+      double value = strtod(token->buffer, &token_end);
+      if(token_end == token->buffer)
+      {
+        // throw an error for invalid float ?
+        ERROR("invalid float '%s'", token->buffer);
+      }
+      if(token_end != token->buffer + token->buffer_used)
+      {
+        // float partially parsed
+        ERROR("float buffer remains '%s' => '%f'" , token->buffer, value);
+      }
+      token->double_value = value;
     }
     break;
 
