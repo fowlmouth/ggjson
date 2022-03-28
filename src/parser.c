@@ -56,6 +56,10 @@ int ggjson_parse_terminal(ggjson_parser* parser, void* arg)
     CHECK_CALL(events->accept_integer, parser_state, arg, ggjson_parser_current_key(parser), parser->next_token.int_value);
     break;
 
+  case ggjltt_string:
+    CHECK_CALL(events->accept_string, parser_state, arg, ggjson_parser_current_key(parser), parser->next_token.buffer_used, parser->next_token.buffer);
+    break;
+
   default:
     return 0;
   }
@@ -93,5 +97,7 @@ int ggjson_parse(ggjson_parser_events* parser_events, ggjson_input* input, void*
   ggjson_parser parser;
   ggjson_parser_init(&parser, parser_events, input);
 
-  return ggjson_parse_terminal(&parser, arg);
+  int result = ggjson_parse_terminal(&parser, arg);
+  ggjson_parser_deinit(&parser);
+  return result;
 }

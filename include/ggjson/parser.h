@@ -27,9 +27,12 @@ typedef struct ggjson_parser_events
   int (*on_error)(ggjson_parser_state*, void*, const char* key, const char* message);
 } ggjson_parser_events;
 
+#ifndef GGJSON_PARSER_ERROR_MESSAGE_BUFFER_SIZE
+# define GGJSON_PARSER_ERROR_MESSAGE_BUFFER_SIZE 512
+#endif
+
 void ggjson_parser_events_init(ggjson_parser_events* parser_events);
 int ggjson_parse(ggjson_parser_events* parser_events, ggjson_input* input, void* arg);
-
 
 
 #endif

@@ -34,4 +34,29 @@ TEST(parser, integer)
   ASSERT_EQ(value, 42);
 }
 
+int test_accept_string(ggjson_parser_state* unused, void* arg, const char* key, int size, const char* str)
+{
+  const char** output = arg;
+  *output = str;
+  return 1;
+}
+
+TEST(parser, string)
+{
+  const char* string = "\"A🍄B🌶C🍍\"";
+
+  ggjson_string_input string_input;
+  ggjson_string_input_init(&string_input, string, strlen(string));
+
+  ggjson_parser_events events;
+  ggjson_parser_events_init(&events);
+  events.accept_string = test_accept_string;
+
+  const char* value = 0;
+
+  ggjson_parse(&events, (ggjson_input*)&string_input, &value);
+  ASSERT(value);
+  ASSERT_EQ(0, strcmp(value, "A🍄B🌶C🍍"));
+
+}
 
