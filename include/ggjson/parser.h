@@ -22,6 +22,8 @@ typedef struct ggjson_parser_events
   int (*accept_double)(ggjson_parser_state*, void*, const char* key, double value);
   int (*accept_boolean)(ggjson_parser_state*, void*, const char* key, int value);
   int (*accept_string)(ggjson_parser_state*, void*, const char* key, int size, const char* value);
+  int (*accept_true)(ggjson_parser_state*, void*, const char* key);
+  int (*accept_false)(ggjson_parser_state*, void*, const char* key);
   int (*accept_null)(ggjson_parser_state*, void*, const char* key);
 
   int (*on_error)(ggjson_parser_state*, void*, const char* key, const char* message);

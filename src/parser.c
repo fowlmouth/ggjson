@@ -64,6 +64,18 @@ int ggjson_parse_terminal(ggjson_parser* parser, void* arg)
     CHECK_CALL(events->accept_string, parser_state, arg, ggjson_parser_current_key(parser), parser->next_token.buffer_used, parser->next_token.buffer);
     break;
 
+  case ggjltt_true:
+    CHECK_CALL(events->accept_true, parser_state, arg, ggjson_parser_current_key(parser));
+    break;
+
+  case ggjltt_false:
+    CHECK_CALL(events->accept_false, parser_state, arg, ggjson_parser_current_key(parser));
+    break;
+
+  case ggjltt_null:
+    CHECK_CALL(events->accept_null, parser_state, arg, ggjson_parser_current_key(parser));
+    break;
+
   default:
     return 0;
   }

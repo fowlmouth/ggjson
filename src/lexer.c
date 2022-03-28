@@ -35,6 +35,13 @@ ggjson_lexer_token_position ggjson_lexer_get_position(ggjson_lexer* lexer)
   return pos;
 }
 
+void ggjson_lexer_set_position(ggjson_lexer* lexer, ggjson_lexer_token_position pos)
+{
+  ggjson_input_set_position(lexer->input, pos.position);
+  lexer->line = pos.line;
+  lexer->col = pos.col;
+}
+
 ggjson_char_t ggjson_lexer_next_character(ggjson_lexer* lexer)
 {
   ggjson_char_t c = ggjson_input_read_character(lexer->input);
@@ -78,7 +85,6 @@ void ggjson_lexer_token_grow_buffer(ggjson_lexer_token* token, int by_atleast)
   token->buffer_capacity = new_capacity;
 }
 
-
 int ggjson_lexer_token_write_char(ggjson_lexer_token* token, ggjson_char_t character)
 {
   char mb[MB_CUR_MAX];
@@ -98,6 +104,27 @@ int ggjson_lexer_token_write_char(ggjson_lexer_token* token, ggjson_char_t chara
   token->buffer_used += char_count;
   token->buffer[ token->buffer_used ] = 0;
   return 1;
+}
+
+int ggjson_lexer_match_literal(ggjson_lexer* lexer, ggjson_lexer_token* token, const char* literal)
+{
+  ggjson_lexer_token_position start = ggjson_lexer_get_position(lexer);
+  int token_buffer_start = token->buffer_used;
+  size_t len = strlen(literal);
+  int i = 0;
+  for(; i < len && ggjson_lexer_current_character(lexer) == literal[i]; ++i)
+  {
+    ggjson_lexer_token_write_char(token, ggjson_lexer_current_character(lexer));
+    ggjson_lexer_next_character(lexer);
+  }
+  if(i < len || isalpha(ggjson_lexer_current_character(lexer)) || isdigit(ggjson_lexer_current_character(lexer)))
+  {
+    // unconsume `i` chars
+    ggjson_lexer_set_position(lexer, start);
+    token->buffer_used = token_buffer_start;
+    return 0;
+  }
+  return i == len;
 }
 
 int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int error_buffer_size, char* error_buffer)
@@ -265,7 +292,24 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
     break;
 
   default:
-    ERROR("unrecognized token");
+
+    if(ggjson_lexer_match_literal(lexer, token, "true"))
+    {
+      token->type = ggjltt_true;
+    }
+    else if(ggjson_lexer_match_literal(lexer, token, "false"))
+    {
+      token->type = ggjltt_false;
+    }
+    else if(ggjson_lexer_match_literal(lexer, token, "null"))
+    {
+      token->type = ggjltt_null;
+    }
+    else
+    {
+      ERROR("unrecognized token");
+    }
+
     break;
 
   }

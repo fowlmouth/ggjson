@@ -34,7 +34,7 @@ TEST(lexer, read_tokens)
   struct lexer_test_state* state = data;
   ggjson_string_input string_input;
   ggjson_string_input_init(&string_input, string, strlen(string));
- 
+
   ggjson_lexer lexer;
   ggjson_lexer_init(&lexer, (ggjson_input*)&string_input);
 
@@ -85,7 +85,7 @@ TEST(lexer, integers)
   struct lexer_test_state* state = data;
   ggjson_string_input string_input;
   ggjson_string_input_init(&string_input, string, strlen(string));
- 
+
   ggjson_lexer lexer;
   ggjson_lexer_init(&lexer, (ggjson_input*)&string_input);
 
@@ -143,7 +143,7 @@ TEST(lexer, punctuation)
   struct lexer_test_state* state = data;
   ggjson_string_input string_input;
   ggjson_string_input_init(&string_input, string, strlen(string));
- 
+
   ggjson_lexer lexer;
   ggjson_lexer_init(&lexer, (ggjson_input*)&string_input);
 
@@ -220,6 +220,40 @@ TEST(lexer, invalid_strings)
     ASSERT(!ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
     ASSERT_EQ(0, strcmp("unterminated string", error_buffer));
   }
+}
+
+
+TEST(lexer, literals)
+{
+  const char* string = "true false null truezza";
+
+  const int error_buffer_size = 256;
+  char error_buffer[error_buffer_size];
+
+  struct lexer_test_state* state = data;
+  ggjson_string_input string_input;
+  ggjson_string_input_init(&string_input, string, strlen(string));
+
+  ggjson_lexer lexer;
+  ggjson_lexer_init(&lexer, (ggjson_input*)&string_input);
+
+  ggjson_lexer_token *token = &state->token;
+
+  ASSERT(ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
+  ASSERT_EQ(token->type, ggjltt_true);
+
+  ASSERT(ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
+  ASSERT_EQ(token->type, ggjltt_false);
+
+  ASSERT(ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
+  ASSERT_EQ(token->type, ggjltt_null);
+
+  ASSERT_EQ(ggjlrtr_error, ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
+  ASSERT_EQ(0, strcmp(error_buffer, "unrecognized token"));
+  return;
+
+  ASSERT_EQ(ggjlrtr_eof, ggjson_lexer_read_token(&lexer, token, error_buffer_size, error_buffer));
+  ASSERT_EQ(token->type, ggjltt_eof);
 }
 
 

@@ -88,3 +88,66 @@ TEST(parser, double)
 }
 
 
+
+struct parser_test_data
+{
+  int true_count, false_count, null_count;
+};
+
+int test_accept_true(ggjson_parser_state* unused, void* arg, const char* key)
+{
+  struct parser_test_data* output = arg;
+  ++output->true_count;
+  return 1;
+}
+int test_accept_false(ggjson_parser_state* unused, void* arg, const char* key)
+{
+  struct parser_test_data* output = arg;
+  ++output->false_count;
+  return 1;
+}
+int test_accept_null(ggjson_parser_state* unused, void* arg, const char* key)
+{
+  struct parser_test_data* output = arg;
+  ++output->null_count;
+  return 1;
+}
+
+TEST(parser, literals)
+{
+  const char* string = "true false null";
+
+  ggjson_string_input string_input;
+  ggjson_string_input_init(&string_input, string, strlen(string));
+
+  ggjson_parser_events events;
+  ggjson_parser_events_init(&events);
+  events.accept_true  = test_accept_true;
+  events.accept_false = test_accept_false;
+  events.accept_null  = test_accept_null;
+
+  struct parser_test_data ptd;
+  memset(&ptd, 0, sizeof ptd);
+
+  ASSERT(ggjson_parse(&events, (ggjson_input*)&string_input, &ptd));
+  ASSERT_EQ(1, ptd.true_count);
+  ASSERT_EQ(0, ptd.false_count);
+  ASSERT_EQ(0, ptd.null_count);
+  memset(&ptd, 0, sizeof ptd);
+
+  ASSERT(ggjson_parse(&events, (ggjson_input*)&string_input, &ptd));
+  ASSERT_EQ(0, ptd.true_count);
+  ASSERT_EQ(1, ptd.false_count);
+  ASSERT_EQ(0, ptd.null_count);
+  memset(&ptd, 0, sizeof ptd);
+
+  ASSERT(ggjson_parse(&events, (ggjson_input*)&string_input, &ptd));
+  ASSERT_EQ(0, ptd.true_count);
+  ASSERT_EQ(0, ptd.false_count);
+  ASSERT_EQ(1, ptd.null_count);
+  memset(&ptd, 0, sizeof ptd);
+
+}
+
+
+
