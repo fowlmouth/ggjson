@@ -106,12 +106,15 @@ TEST(parser, double)
   ggjson_parser_events_init(&events);
   events.accept_double = test_accept_double;
 
+  ggjson_parser* parser = &((struct parser_test_state*)data)->parser;
+  ggjson_parser_init(parser, &events, (ggjson_input*)&string_input);
+
   double value = 0;
 
-  ggjson_parse(&events, (ggjson_input*)&string_input, &value);
+  ASSERT(ggjson_parse_node(parser, &value));
   ASSERT_EQ(value, 123.45);
 
-  ggjson_parse(&events, (ggjson_input*)&string_input, &value);
+  ASSERT(ggjson_parse_node(parser, &value));
   ASSERT_EQ(value, -99e2);
 
 }
