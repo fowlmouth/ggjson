@@ -158,22 +158,25 @@ TEST(parser, literals)
   events.accept_false = test_accept_false;
   events.accept_null  = test_accept_null;
 
+  ggjson_parser* parser = &((struct parser_test_state*)data)->parser;
+  ggjson_parser_init(parser, &events, (ggjson_input*)&string_input);
+
   struct parser_test_data ptd;
   memset(&ptd, 0, sizeof ptd);
 
-  ASSERT(ggjson_parse(&events, (ggjson_input*)&string_input, &ptd));
+  ASSERT(ggjson_parse_node(parser, &ptd));
   ASSERT_EQ(1, ptd.true_count);
   ASSERT_EQ(0, ptd.false_count);
   ASSERT_EQ(0, ptd.null_count);
   memset(&ptd, 0, sizeof ptd);
 
-  ASSERT(ggjson_parse(&events, (ggjson_input*)&string_input, &ptd));
+  ASSERT(ggjson_parse_node(parser, &ptd));
   ASSERT_EQ(0, ptd.true_count);
   ASSERT_EQ(1, ptd.false_count);
   ASSERT_EQ(0, ptd.null_count);
   memset(&ptd, 0, sizeof ptd);
 
-  ASSERT(ggjson_parse(&events, (ggjson_input*)&string_input, &ptd));
+  ASSERT(ggjson_parse_node(parser, &ptd));
   ASSERT_EQ(0, ptd.true_count);
   ASSERT_EQ(0, ptd.false_count);
   ASSERT_EQ(1, ptd.null_count);
