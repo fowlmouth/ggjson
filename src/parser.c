@@ -13,12 +13,14 @@ const char* ggjson_parser_current_key(ggjson_parser* parser)
   return NULL;
 }
 
-void ggjson_parser_consume_token(ggjson_parser* parser)
+int ggjson_parser_consume_token(ggjson_parser* parser)
 {
   if(!ggjson_lexer_read_token(&parser->lex, &parser->next_token, GGJSON_PARSER_ERROR_BUFFER_SIZE, parser->error_buffer))
   {
     // TODO set error code?
+    return 0;
   }
+  return 1;
 }
 
 

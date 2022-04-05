@@ -104,10 +104,10 @@ void ggjson_ast_object_grow(ggjson_ast_object* obj)
       new_slot->value = old_slot->value;
     }
   }
+  assert(size == 0);
   obj->capacity_mask = new_capacity_mask;
   obj->slots = new_slots;
   free(old_slots);
-  assert(size == 0);
 }
 
 void ggjson_ast_object_grow_key_buffer(ggjson_ast_object* obj, int min_length)

@@ -63,16 +63,22 @@ TEST(parser, integer)
   ASSERT(!ggjson_parse_node(parser, &value));
 }
 
+struct string_buffer
+{
+  int size;
+  char* buffer;
+};
+
 int test_accept_string(ggjson_parser_state* unused, void* arg, const char* key, int size, const char* str)
 {
-  const char** output = arg;
-  *output = str;
+  struct string_buffer* output = arg;
+  snprintf(output->buffer, output->size, "%s", str);
   return 1;
 }
 
 TEST(parser, string)
 {
-  const char* string = "\"A🍄B🌶C🍍\"";
+  const char* string = "\"A🍄B🌶C🍍\" \"foo\nbar\"";
 
   ggjson_string_input string_input;
   ggjson_string_input_init(&string_input, string, strlen(string));
@@ -81,11 +87,21 @@ TEST(parser, string)
   ggjson_parser_events_init(&events);
   events.accept_string = test_accept_string;
 
-  const char* value = 0;
+  ggjson_parser* parser = &((struct parser_test_state*)data)->parser;
+  ggjson_parser_init(parser, &events, (ggjson_input*)&string_input);
 
-  ggjson_parse(&events, (ggjson_input*)&string_input, &value);
-  ASSERT(value);
-  ASSERT_EQ(0, strcmp(value, "A🍄B🌶C🍍"));
+  char output[64];
+  struct string_buffer strbuf = {64, output};
+
+  ASSERT(ggjson_parse_node(parser, &strbuf));
+  ASSERT_EQ(0, strcmp(output, "A🍄B🌶C🍍"));
+
+  memset(output, 0, sizeof output);
+
+  ASSERT(ggjson_parse_node(parser, &strbuf));
+  ASSERT_EQ(0, strcmp(output, "foo\nbar"));
+
+  ASSERT(!ggjson_parse_node(parser, &strbuf));
 }
 
 int test_accept_double(ggjson_parser_state* unused, void* arg, const char* key, double value)
