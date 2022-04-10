@@ -133,7 +133,7 @@ int ggjson_lexer_read_token(ggjson_lexer* lexer, ggjson_lexer_token* token, int 
 
   token->type = ggjltt_eof;
   token->begin = token->end = ggjson_lexer_get_position(lexer);
-  token->buffer_used = 0;
+  token->buffer_used = token->character_count = 0;
 
   if(ggjson_input_is_eof(lexer->input))
   {

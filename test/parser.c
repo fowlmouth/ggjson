@@ -26,11 +26,19 @@ SUITE(parser, sizeof(struct parser_test_state), parser_test_setup, parser_test_d
 
 
 
+struct parser_test_data
+{
+  int int_count, true_count, false_count, null_count;
+  long long integer_value;
+  double double_value;
+};
 
 int test_accept_integer(ggjson_parser_state* unused, void* arg, const char* key, long long value)
 {
-  long long* output = arg;
-  *output = value;
+  // long long* output = arg;
+  struct parser_test_data* output = arg;
+  ++output->int_count;
+  output->integer_value = value;
   return 1;
 }
 
@@ -48,19 +56,25 @@ TEST(parser, integer)
   ggjson_parser* parser = &((struct parser_test_state*)data)->parser;
   ggjson_parser_init(parser, &events, (ggjson_input*)&string_input);
 
-  long long value = 0;
+  struct parser_test_data ptd;
 
-  ASSERT(ggjson_parse_node(parser, &value));
-  ASSERT_EQ(value, 12345);
+  ASSERT(ggjson_parse_node(parser, &ptd));
+  ASSERT_EQ(ptd.int_count, 1);
+  ASSERT_EQ(ptd.integer_value, 12345);
+  memset(&ptd, 0, sizeof ptd);
 
-  ASSERT(ggjson_parse_node(parser, &value));
-  ASSERT_EQ(value, -99);
+  ASSERT(ggjson_parse_node(parser, &ptd));
+  ASSERT_EQ(ptd.int_count, 1);
+  ASSERT_EQ(ptd.integer_value, -99);
+  memset(&ptd, 0, sizeof ptd);
 
-  ASSERT(ggjson_parse_node(parser, &value));
-  ASSERT_EQ(value, 42);
+  ASSERT(ggjson_parse_node(parser, &ptd));
+  ASSERT_EQ(ptd.int_count, 1);
+  ASSERT_EQ(ptd.integer_value, 42);
+  memset(&ptd, 0, sizeof ptd);
 
   ASSERT(ggjson_input_is_eof((ggjson_input*)&string_input));
-  ASSERT(!ggjson_parse_node(parser, &value));
+  ASSERT(!ggjson_parse_node(parser, &ptd));
 }
 
 struct string_buffer
@@ -137,10 +151,6 @@ TEST(parser, double)
 
 
 
-struct parser_test_data
-{
-  int true_count, false_count, null_count;
-};
 
 int test_accept_true(ggjson_parser_state* unused, void* arg, const char* key)
 {
@@ -198,6 +208,7 @@ TEST(parser, literals)
   ASSERT_EQ(1, ptd.null_count);
   memset(&ptd, 0, sizeof ptd);
 
+  ASSERT(!ggjson_parse_node(parser, &ptd));
 }
 
 
